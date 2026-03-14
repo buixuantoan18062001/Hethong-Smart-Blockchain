@@ -1,0 +1,491 @@
+pragma solidity ^0.4.23;
+
+import "./SupplyChainStorageOwnable.sol";
+
+contract SupplyChainStorage is SupplyChainStorageOwnable {
+    
+    constructor() public {
+        authorizedCaller[msg.sender] = 1;
+        emit AuthorizedCaller(msg.sender);
+    }
+    
+    /* Events */
+    event AuthorizedCaller(address caller);
+    event DeAuthorizedCaller(address caller);
+
+    event PerformCultivation(address indexed user, address indexed batchNo);
+    event DoneInspection(address indexed user, address indexed batchNo);
+    event DoneHarvesting(address indexed user, address indexed batchNo);
+    event DoneExporting(address indexed user, address indexed batchNo);
+    event DoneImporting(address indexed user, address indexed batchNo);
+    event DoneProcessing(address indexed user, address indexed batchNo);
+    
+
+    event UserUpdate(address indexed user, string name, string contactNo, string role, bool isActive);
+    event UserRoleUpdate(address indexed user, string role); 
+    /* Modifiers */
+    
+    modifier onlyAuthCaller(){
+        require(authorizedCaller[msg.sender] == 1);
+        _;
+    }
+    
+    /* User Related */
+    struct user {
+        string name;
+        string contactNo;
+        bool isActive;
+    } 
+    
+    mapping(address => user) userDetails;
+    mapping(address => string) userRole;
+    
+    /* Caller Mapping */
+    mapping(address => uint8) authorizedCaller;
+    
+    /* authorize caller */
+    function authorizeCaller(address _caller) public onlyOwner returns(bool) 
+    {
+        authorizedCaller[_caller] = 1;
+        emit AuthorizedCaller(_caller);
+        return true;
+    }
+    
+    /* deauthorize caller */
+    function deAuthorizeCaller(address _caller) public onlyOwner returns(bool) 
+    {
+        authorizedCaller[_caller] = 0;
+        emit DeAuthorizedCaller(_caller);
+        return true;
+    }
+    
+    /*User Roles
+        SUPER_ADMIN,
+        FARM_INSPECTION,
+        HARVESTER,
+        EXPORTER,
+        IMPORTER,
+        PROCESSOR
+    */
+    
+    /* Process Related */
+     struct basicDetails {
+        string registrationNo;
+        string farmerName;
+        string farmAddress;
+        string exporterName;
+        string importerName;
+        
+    }
+    
+    struct farmInspector {
+        string coffeeFamily;
+        string typeOfSeed;
+        string fertilizerUsed;
+    }
+    
+    struct harvester {
+        string cropVariety;
+        string temperatureUsed;
+        string humidity;
+    }    
+    
+    struct exporter {
+        string destinationAddress;
+        string shipName;
+        string shipNo;
+        uint256 quantity;
+        uint256 departureDateTime;
+        uint256 estimateDateTime;
+        uint256 plantNo;
+        uint256 exporterId;
+    }
+    
+    struct importer {
+        uint256 quantity;
+        uint256 arrivalDateTime;
+        uint256 importerId;
+        string shipName;
+        string shipNo;
+        string transportInfo;
+        string warehouseName;
+        string warehouseAddress;
+    }
+    
+    struct processor {
+        uint256 quantity;
+        uint256 rostingDuration;
+        uint256 packageDateTime;
+        string temperature;
+        string internalBatchNo;
+        string processorName;
+        string processorAddress;
+    }
+    
+    mapping (address => basicDetails) batchBasicDetails;
+    mapping (address => farmInspector) batchFarmInspector;
+    mapping (address => harvester) batchHarvester;
+    mapping (address => exporter) batchExporter;
+    mapping (address => importer) batchImporter;
+    mapping (address => processor) batchProcessor;
+    mapping (address => string) nextAction;
+    
+    /*Initialize struct pointer*/
+    user userDetail;
+    basicDetails basicDetailsData;
+    farmInspector farmInspectorData;
+    harvester harvesterData;
+    exporter exporterData;
+    importer importerData;
+    processor processorData; 
+    
+    
+
+    function ChuoiRong (string Chuoi) pure public returns (bool) {
+        bytes memory _value = bytes (Chuoi);
+        if (_value.length == 0)
+            return true;
+        return false;
+    }
+
+
+    function NguoiDungTonTai (address diaChi) constant private returns (bool) {
+        if (!ChuoiRong (userDetails [diaChi].name)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /* Get User Role */
+    function getUserRole(address _userAddress) public onlyAuthCaller view returns(string)
+    {
+        return userRole[_userAddress];
+    }
+    
+    /* Get Next Action  */    
+    function getNextAction(address _batchNo) public onlyAuthCaller view returns(string)
+    {
+        return nextAction[_batchNo];
+    }
+        
+    /*set user details*/
+    function setUser(address _userAddress,
+                     string _name, 
+                     string _contactNo, 
+                     string _role, 
+                     bool _isActive) public onlyAuthCaller view returns(bool){
+        
+        /*store data into struct*/
+        userDetail.name = _name;
+        userDetail.contactNo = _contactNo;
+        userDetail.isActive = _isActive;
+        
+        /*store data into mapping*/
+        userDetails[_userAddress] = userDetail;
+        userRole[_userAddress] = _role;
+        
+        emit UserUpdate(_userAddress,_name,_contactNo,_role,_isActive);
+        emit UserRoleUpdate(_userAddress,_role);
+
+        return true;
+    }  
+    /* Create/Update User For Admin  */
+    function updateUserForAdmin(address _userAddress, string _name, string _contactNo, string _role, bool _isActive) public onlyOwner returns(bool)
+    {
+        require(_userAddress != address(0));
+        
+        /* Call Storage Contract */
+        bool status = setUser(_userAddress, _name, _contactNo, _role, _isActive);
+        
+         /*call event*/
+        emit UserUpdate(_userAddress,_name,_contactNo,_role,_isActive);
+        emit UserRoleUpdate(_userAddress,_role);
+        
+        return status;
+    }
+	
+	/* Create/Update User */
+    function updateUser(string _name, string _contactNo, string _role, bool _isActive) public returns(bool)
+    {
+        require(msg.sender != address(0));
+        
+        /* Call Storage Contract */
+        bool status = setUser(msg.sender, _name, _contactNo, _role, _isActive);
+        
+         /*call event*/
+        emit UserUpdate(msg.sender,_name,_contactNo,_role,_isActive);
+        emit UserRoleUpdate(msg.sender,_role);
+        
+        return status;
+    }
+    /*get user details*/
+    function getUser(address _userAddress) public onlyAuthCaller view returns(string name, 
+                                                                    string contactNo, 
+                                                                    string role,
+                                                                    bool isActive
+                                                                ){
+
+        /*Getting value from struct*/
+        user memory tmpData = userDetails[_userAddress];
+        
+        return (tmpData.name, tmpData.contactNo, userRole[_userAddress], tmpData.isActive);
+    }
+    function getUserAdmin(address _userAddress) public view returns(string name, string contactNo, string role, bool isActive){
+        require(_userAddress != address(0));
+        
+        /*Getting value from struct*/
+       (name, contactNo, role, isActive) = getUser(_userAddress);
+       
+       return (name, contactNo, role, isActive);
+    }
+    /*get batch basicDetails*/
+    function getBasicDetails(address _batchNo) public onlyAuthCaller view returns(string registrationNo,
+                             string farmerName,
+                             string farmAddress,
+                             string exporterName,
+                             string importerName) {
+        
+        basicDetails memory tmpData = batchBasicDetails[_batchNo];
+        
+        return (tmpData.registrationNo,tmpData.farmerName,tmpData.farmAddress,tmpData.exporterName,tmpData.importerName);
+    }
+    
+    /*set batch basicDetails*/
+    function setBasicDetails(string _registrationNo,
+                             string _farmerName,
+                             string _farmAddress,
+                             string _exporterName,
+                             string _importerName
+                             
+                            ) public onlyAuthCaller returns(address) {
+        
+        uint tmpData = uint(keccak256(msg.sender, now));
+        address batchNo = address(tmpData);
+        basicDetailsData.registrationNo = _registrationNo;
+        basicDetailsData.farmerName = _farmerName;
+        basicDetailsData.farmAddress = _farmAddress;
+        basicDetailsData.exporterName = _exporterName;
+        basicDetailsData.importerName = _importerName;
+        
+        batchBasicDetails[batchNo] = basicDetailsData;
+        
+        nextAction[batchNo] = 'FARM_INSPECTION';   
+        
+        emit PerformCultivation(msg.sender, batchNo);
+        
+        return batchNo;
+    }
+    
+    /*set farm Inspector data*/
+    function setFarmInspectorData(address batchNo,
+                                    string _coffeeFamily,
+                                    string _typeOfSeed,
+                                    string _fertilizerUsed) public returns(bool){
+	require (NguoiDungTonTai (msg.sender));
+        farmInspectorData.coffeeFamily = _coffeeFamily;
+        farmInspectorData.typeOfSeed = _typeOfSeed;
+        farmInspectorData.fertilizerUsed = _fertilizerUsed;
+        batchFarmInspector[batchNo] = farmInspectorData;
+        nextAction[batchNo] = 'HARVESTER'; 
+        
+        emit DoneInspection(msg.sender, batchNo);
+
+        return true;
+    }
+    
+    /*get farm inspactor data*/
+    function getFarmInspectorData(address batchNo) public onlyAuthCaller view returns (string coffeeFamily,string typeOfSeed,string fertilizerUsed){
+        
+        farmInspector memory tmpData = batchFarmInspector[batchNo];
+        return (tmpData.coffeeFamily, tmpData.typeOfSeed, tmpData.fertilizerUsed);
+    }
+    
+
+    /*set Harvester data*/
+    function setHarvesterData(address batchNo,
+                              string _cropVariety,
+                              string _temperatureUsed,
+                              string _humidity) public returns(bool){
+	require (NguoiDungTonTai (msg.sender));
+        harvesterData.cropVariety = _cropVariety;
+        harvesterData.temperatureUsed = _temperatureUsed;
+        harvesterData.humidity = _humidity;
+        
+        batchHarvester[batchNo] = harvesterData;
+        
+        nextAction[batchNo] = 'EXPORTER'; 
+        
+        emit DoneHarvesting(msg.sender, batchNo);
+
+        return true;
+    }
+    
+    /*get farm Harvester data*/
+    function getHarvesterData(address batchNo) public onlyAuthCaller view returns(string cropVariety,
+                                                                                           string temperatureUsed,
+                                                                                           string humidity){
+        
+        harvester memory tmpData = batchHarvester[batchNo];
+        return (tmpData.cropVariety, tmpData.temperatureUsed, tmpData.humidity);
+    }
+    
+    /*set Exporter data*/
+    function setExporterData(address batchNo,
+                              uint256 _quantity,    
+                              string _destinationAddress,
+                              string _shipName,
+                              string _shipNo,
+                              uint256 _estimateDateTime,
+                              uint256 _exporterId) public returns(bool){
+        require (NguoiDungTonTai (msg.sender));
+        exporterData.quantity = _quantity;
+        exporterData.destinationAddress = _destinationAddress;
+        exporterData.shipName = _shipName;
+        exporterData.shipNo = _shipNo;
+        exporterData.departureDateTime = now;
+        exporterData.estimateDateTime = _estimateDateTime;
+        exporterData.exporterId = _exporterId;
+        
+        batchExporter[batchNo] = exporterData;
+        
+        nextAction[batchNo] = 'IMPORTER'; 
+        
+        emit DoneExporting(msg.sender, batchNo);
+
+        return true;
+    }
+    
+    /*get Exporter data*/
+    function getExporterData(address batchNo) public onlyAuthCaller view returns(uint256 quantity,
+                                                                string destinationAddress,
+                                                                string shipName,
+                                                                string shipNo,
+                                                                uint256 departureDateTime,
+                                                                uint256 estimateDateTime,
+                                                                uint256 exporterId){
+        
+        
+        exporter memory tmpData = batchExporter[batchNo];
+        
+        
+        return (tmpData.quantity, 
+                tmpData.destinationAddress, 
+                tmpData.shipName, 
+                tmpData.shipNo, 
+                tmpData.departureDateTime, 
+                tmpData.estimateDateTime, 
+                tmpData.exporterId);
+                
+        
+    }
+
+    
+    /*set Importer data*/
+    function setImporterData(address batchNo,
+                              uint256 _quantity, 
+                              string _shipName,
+                              string _shipNo,
+                              string _transportInfo,
+                              string _warehouseName,
+                              string _warehouseAddress,
+                              uint256 _importerId) public returns(bool){
+        require (NguoiDungTonTai (msg.sender));
+        importerData.quantity = _quantity;
+        importerData.shipName = _shipName;
+        importerData.shipNo = _shipNo;
+        importerData.arrivalDateTime = now;
+        importerData.transportInfo = _transportInfo;
+        importerData.warehouseName = _warehouseName;
+        importerData.warehouseAddress = _warehouseAddress;
+        importerData.importerId = _importerId;
+        
+        batchImporter[batchNo] = importerData;
+        
+        nextAction[batchNo] = 'PROCESSOR'; 
+        
+        emit DoneImporting(msg.sender, batchNo);
+
+        return true;
+    }
+    
+    /*get Importer data*/
+    function getImporterData(address batchNo) public onlyAuthCaller view returns(uint256 quantity,
+                                                                                        string shipName,
+                                                                                        string shipNo,
+                                                                                        uint256 arrivalDateTime,
+                                                                                        string transportInfo,
+                                                                                        string warehouseName,
+                                                                                        string warehouseAddress,
+                                                                                        uint256 importerId){
+        
+        importer memory tmpData = batchImporter[batchNo];
+        
+        
+        return (tmpData.quantity, 
+                tmpData.shipName, 
+                tmpData.shipNo, 
+                tmpData.arrivalDateTime, 
+                tmpData.transportInfo,
+                tmpData.warehouseName,
+                tmpData.warehouseAddress,
+                tmpData.importerId);
+                
+        
+    }
+
+    /*set Proccessor data*/
+    function setProcessorData(address batchNo,
+                              uint256 _quantity, 
+                              string _temperature,
+                              uint256 _rostingDuration,
+                              string _internalBatchNo,
+                              uint256 _packageDateTime,
+                              string _processorName,
+                              string _processorAddress) public returns(bool){
+        
+        require (NguoiDungTonTai (msg.sender));
+        processorData.quantity = _quantity;
+        processorData.temperature = _temperature;
+        processorData.rostingDuration = _rostingDuration;
+        processorData.internalBatchNo = _internalBatchNo;
+        processorData.packageDateTime = _packageDateTime;
+        processorData.processorName = _processorName;
+        processorData.processorAddress = _processorAddress;
+        
+        batchProcessor[batchNo] = processorData;
+        
+        nextAction[batchNo] = 'DONE'; 
+        
+        emit DoneProcessing(msg.sender, batchNo);
+
+        return true;
+    }
+    
+    
+    /*get Processor data*/
+    function getProcessorData( address batchNo) public onlyAuthCaller view returns(
+                                                                                        uint256 quantity,
+                                                                                        string temperature,
+                                                                                        uint256 rostingDuration,
+                                                                                        string internalBatchNo,
+                                                                                        uint256 packageDateTime,
+                                                                                        string processorName,
+                                                                                        string processorAddress){
+
+        processor memory tmpData = batchProcessor[batchNo];
+        
+        
+        return (
+                tmpData.quantity, 
+                tmpData.temperature, 
+                tmpData.rostingDuration, 
+                tmpData.internalBatchNo,
+                tmpData.packageDateTime,
+                tmpData.processorName,
+                tmpData.processorAddress);
+                
+        
+    }
+
+  
+}    

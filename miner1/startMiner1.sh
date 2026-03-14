@@ -1,0 +1,1 @@
+geth --identity "miner1" --networkid 42 --datadir "~/Desktop/myChain/miner1" --mine --rpc --rpcport "7545" --port "30303" --unlock 0 --password ~/Desktop/myChain/miner1/password.sec --ipcpath "~/.ethereum/geth.ipc"

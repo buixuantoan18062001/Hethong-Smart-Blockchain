@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="16x16" href="plugins/images/imperialsofetch.png">
+    <title>Coffee SupplyChain</title>
+    <!-- Bootstrap Core CSS -->
+    <link href="plugins/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="plugins/bower_components/bootstrap-extension/css/bootstrap-extension.css" rel="stylesheet">
+    <link href="plugins/bower_components/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- animation CSS -->
+    <link href="css/animate.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- color CSS -->
+    <link href="css/colors/blue.css" id="theme" rel="stylesheet">
+
+    <link href="css/sweetAlert.css" id="theme" rel="stylesheet">
+
+    <link href="plugins/bower_components/switchery/dist/switchery.min.css" rel="stylesheet" />
+
+
+    <!-- Popup CSS -->
+    <link href="plugins/bower_components/Magnific-Popup-master/dist/magnific-popup.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="css/parsley.css">
+
+    <link href="plugins/bower_components/timepicker/bootstrap-timepicker.min.css" rel="stylesheet">
+    <link href="plugins/bower_components/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+
+
+    <style type="text/css">
+        .float-right
+        {
+            float: right;
+        }
+
+        .parsley-required , .red{
+            color: red;
+        }
+    </style>
+
+    <!-- <script src="http://www.w3schools.com/lib/w3data.js"></script> -->
+    <!-- jQuery -->
+    <script src="plugins/bower_components/jquery/dist/jquery.min.js"></script>
+
+</head>
+
+<body>
+                <!-- /.row -->
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6 ">
+                        <div class="white-box">
+                            <h3 class="box-title">Người dùng</h3>
+                            <ul class="list-inline two-part">
+                                <li><i class="icon-user text-info"></i></li>
+                                <li class="text-right"><span class="counter text-info" id="totalUsers">0</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 ">
+                        <div class="white-box">
+                            <h3 class="box-title">Tổng số vai trò</h3>
+                            <ul class="list-inline two-part">
+                                <li><i class="icon-graduation text-purple"></i></li>
+                                <li class="text-right "><span class="counter text-purple">5</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 ">
+                        <div class="white-box">
+                            <h3 class="box-title">Tổng số lô</h3>
+                            <ul class="list-inline two-part">
+                                <li><i class="icon-doc text-success"></i></li>
+                                <li class="text-right"><span class="counter text-success" id="totalBatch">0</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!--row -->
+                <!-- /.row -->
+
+
+                               <!-- row -->
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+                        <div class="white-box">
+                             <a href="javascript:void(0);" class="btn btn-info pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light" onclick="javascript:$('#batchFormModel').modal();">Create Batch</a>
+                            <h3 class="box-title">
+Tổng quan về lô hàng </h3>
+                            <div class="table-responsive">
+                                <table class="table product-overview" id="adminCultivationTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Lô hàng</th>
+                                            <th>QR-Code</th>
+                                            <th>Nông trại</th>
+                                            <th>Vận chuyển</th>
+                                            <th>Sản Xuất</th>
+                                            <th>Nhà bán sĩ</th>
+                                            <th>Nhà bán lẽ<</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                         <tr>
+                                             <td colspan="7" align="center">No Data Available</td>
+                                         </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                        <div class="white-box">
+                            <h3 class="box-title">Địa chỉ của bạn<i class="fa fa-qrcode fa-2x text-success"></i></h3>
+                            <ul class="list-inline two-part">
+                                <li class="text-right" id="currentUserAddress">0x0000000000000000000000000000000000000000</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                        <div class="white-box">
+                           <h3 class="box-title">Địa chỉ hợp đồng lưu trữ <i class="fa fa-qrcode fa-2x text-danger"></i></h3>
+                            <ul class="list-inline two-part">
+                                <li class="text-right" id="storageContractAddress">0x0000000000000000000000000000000000000000</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                        <div class="white-box">
+                            <h3 class="box-title">Địa chỉ hợp đồng cung cấp cà phê <i class="fa fa-qrcode fa-2x text-info"></i></h3>
+                            <ul class="list-inline two-part">
+                                <li class="text-right" id="coffeeSupplychainContractAddress">0x0000000000000000000000000000000000000000</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                        <div class="white-box">
+                           <h3 class="box-title">Địa chỉ hợp đồng người dùng <i class="fa fa-qrcode fa-2x text-info"></i></h3>
+                            <ul class="list-inline two-part">
+                                <li class="text-right" id="userContractAddress">0x0000000000000000000000000000000000000000</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!--row -->
+                <div class="row">
+                    <div class="col-md-12 col-lg-4 col-sm-12">
+                        <div class="white-box">
+                            <h3 class="box-title">User Roles</h3>
+                            <div class="table-responsive">
+                                <table class="table product-overview">
+                                    <thead>
+                                        <tr>
+                                            <th>Vai trò</th>
+                                            <th>Màu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Nông trại</td>
+                                            <td><span class="label label-info font-weight-100">Nông trại</span></td>
+                                        </tr>
+                                         <tr>
+                                            <td>Vận chuyển</td>
+                                            <td><span class="label label-success font-weight-100">Vận chuyển</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sản Xuất</td>
+                                            <td><span class="label label-warning font-weight-100">Sản Xuất</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nhà bán sĩ</td>
+                                            <td><span class="label label-danger font-weight-100">Nhà bán sĩ</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nhà bán lẽ</td>
+                                            <td><span class="label label-primary font-weight-100">Nhà bán lẽ</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-8 col-sm-12">
+                        <div class="white-box">
+                             <a href="javascript:void(0);" id="userFormClick" class="btn btn-info pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"onclick="javascript:$('#userFormModel').modal();" >Create User</a>
+                            <h3 class="box-title">Users</h3>
+                            <div class="table-responsive">
+                                <table class="table product-overview table-responsive" id="tblUser">
+                                    <thead>
+                                        <tr>
+                                            <th>Địa chỉ ví</th>
+                                            <th>Tên</th>
+                                            <th>Liên hệ</th>
+                                            <th>Vai trò</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+            </div>
+            <!-- /.container-fluid -->
+
+            <div id="batchFormModel" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; padding-top: 170px;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h2 class="modal-title">Thêm lô hàng</h2>
+                        </div>
+                        <div class="modal-body">
+                            <form id="batchForm" onsubmit="return false;">
+                            <fieldset style="border:0;">
+                                <div class="form-group">
+                                    <label class="control-label" for="farmerRegistrationNo">Số đăng ký <i class="red">*</i></label>
+                                    <input type="text" class="form-control" id="farmerRegistrationNo" name="farmerRegistrationNo" placeholder="Registration No" data-parsley-required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="farmerName">Tên<i class="red">*</i></label>
+                                    <input type="text" class="form-control" id="farmerName" name="farmerName" placeholder="Farmer Name" data-parsley-required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="farmerAddress"> Địa chỉ<i class="red">*</i></label>
+                                    <textarea class="form-control" id="farmerAddress" name="farmerAddress" placeholder="Farmer Address" data-parsley-required="true"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="exporterName">Xuất khẩu<i class="red">*</i></label>
+                                    <input type="text" class="form-control" id="exporterName" name="exporterName" placeholder="Exporter Name" data-parsley-required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="importerName">Nhập khẩu <i class="red">*</i></label>
+                                    <input type="text" class="form-control" id="importerName" name="importerName" placeholder="Importer Name" data-parsley-required="true">
+                                </div>
+                            </fieldset>
+
+                        </div>
+                        <div class="modal-footer">
+                             <button type="submit" onclick="addCultivationBatch();" class="fcbtn btn btn-primary btn-outline btn-1f">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="userFormModel" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; padding-top: 170px;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h2 class="modal-title" id="userModelTitle">Add User</h2>
+                        </div>
+                        <div class="modal-body">
+                            <form id="userForm" onsubmit="return false;">
+                                <fieldset style="border:0;">
+                                    <div class="form-group">
+                                        <label class="control-label" for="userWalletAddress">Địa chỉ ví <i class="red">*</i></label>
+                                        <input type="text" class="form-control" id="userWalletAddress" name="userWalletAddress" placeholder="Wallet Address" data-parsley-required="true" minlength="42" maxlength="42">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="userName">Tên <i class="red">*</i></label>
+                                        <input type="text" class="form-control" id="userName" name="userName" placeholder="Name" data-parsley-required="true">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="userContactNo">Liên hệ <i class="red">*</i></label>
+                                        <input type="text" class="form-control" id="userContactNo" name="userContactNo" placeholder="Contact No." data-parsley-required="true" data-parsley-type="digits" data-parsley-length="[10, 15]" maxlength="15">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="userRoles">vai trò<i class="red">*</i></label>
+                                        <select class="form-control" id="userRoles" name="userRoles" data-parsley-required="true">
+                                            <option value="">Chọn loại </option>
+                                            <option value="Nông trại">Nông trại</option>
+                                            <option value="Vận chuyển">Vận chuyển</option>
+                                            <option value="Sản Xuất">Sản Xuất</option>
+                                            <option value="Nhà bán sĩ">Nhà bán sĩ</option>
+                                            <option value="Nhà bán lẽ">Nhà bán lẽ</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                        </div>
+                        <div class="modal-footer">
+                            <i style="display: none;" class="fa fa-spinner fa-spin"></i>
+                             <button id="btn_luuchungchi" type="button" onclick="ThemNguoiDung()" class="fcbtn btn btn-primary btn-outline btn-1f">Đăng ký</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+ <!-- Bootstrap Core JavaScript -->
+    <script src="plugins/bower_components/bootstrap/dist/js/tether.min.js"></script>
+    <script src="plugins/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="plugins/bower_components/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <!-- JQuery will help us extract data from json files -->
+    <script src="plugins/bower_components/jquery-sparkline/jquery.sparkline.min.js"></script>
+    <script src="plugins/bower_components/datatables/jquery.dataTables.min.js"></script>
+    <!-- Web3.js will help us interact with the deployed smart contract -->
+    <script src="JShelpers/web3.min.js"></script>
+    <!-- Truffle contract  will our life easier when interacting with smart contracts -->
+    <script src="JShelpers/truffle-contract.js"></script>
+    <!-- app.js is where we will write our JS logic -->
+    <script src="app.js"></script>
+    <script type="text/javascript" src="plugins/bower_components/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="plugins/bower_components/bootstrap-datetimepicker-master/js/locales/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
+    <script src="plugins/bower_components/bootstrap-extension/js/bootstrap-extension.min.js"></script>
+    <!-- Menu Plugin JavaScript -->
+    <script src="plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.js"></script>
+</body>
+
+</html>

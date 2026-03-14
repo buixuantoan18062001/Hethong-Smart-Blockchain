@@ -1,0 +1,1 @@
+geth --identity "miner" --networkid 8 --datadir "~/Desktop/myChain2/miner" --mine --targetgaslimit '9000000000000' --rpc --rpcapi "db,eth,net,web3,personal" --rpcport "8545" --unlock 0 --password ~/Desktop/myChain/miner/password.sec --ipcpath "~/.ethereum/geth.ipc"
